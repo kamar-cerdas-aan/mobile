@@ -3,5 +3,6 @@ export interface dataModel {
   pir: boolean;
   load: boolean;
   override: boolean;
-  timestamp: Date;
+  timestamp: string;
+  id: string;
 }

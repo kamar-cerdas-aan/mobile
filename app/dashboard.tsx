@@ -1,45 +1,57 @@
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList } from "react-native-gesture-handler";
 import Card from "@/components/Cards";
 import { dataModel } from "@/model/data";
 import { groupByDate } from "@/utils/group";
 import { Button, Divider } from "@rneui/base";
 import { Link } from "expo-router";
-
-const data: dataModel[] = [
-  {
-    light: true,
-    pir: true,
-    load: true,
-    override: true,
-    timestamp: new Date(),
-  },
-  {
-    light: false,
-    pir: true,
-    load: true,
-    override: false,
-    timestamp: new Date(2024, 5, 8, 7, 39, 10),
-  },
-  {
-    light: true,
-    pir: true,
-    load: true,
-    override: true,
-    timestamp: new Date(new Date().setDate(new Date().getDate() - 2)),
-  },
-];
+import client from "./api/client";
 
 export default function Monitor() {
-  const groupedData = groupByDate(data);
-  const loggedIn = true;
+  const [data, setData] = useState<
+    {
+      key: string;
+      data: dataModel[];
+    }[]
+  >();
+
+  let loggedIn = true;
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiIiwiZGV2aWNlX2lkIjoiYnVrYW5oYW5zMiIsImlhdCI6MTcxNzg5ODIzMn0.PmdFMEyKcM4DBSV2SZp1_XyhiNtCeRs-HTq8P4bL0UY";
+
+  const fetchAPI = async () => {
+    try {
+      const res = await client.get("/api/data", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(res.data);
+      const resData = res.data;
+      if (resData !== null) {
+        try {
+          setData(groupByDate(resData));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAPI();
+    const interval = setInterval(fetchAPI, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <SafeAreaView style={loggedIn ? styles.container : styles.middle}>
       {loggedIn ? (
         <FlatList
-          data={groupedData}
+          data={data}
           keyExtractor={(item) => item.key}
           renderItem={({ item }) => (
             <View style={styles.groupContainer}>
@@ -61,7 +73,7 @@ export default function Monitor() {
             Please Log In to Monitor Your Logs
           </Text>
 
-          <Button buttonStyle={styles.button} >
+          <Button buttonStyle={styles.button}>
             <Link style={styles.buttonTitle} href="/login">
               Login
             </Link>
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     width: "100%",
     height: "100%",
-    textAlign: "center"
+    textAlign: "center",
   },
   groupNotLogin: {
     justifyContent: "center",

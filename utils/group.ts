@@ -4,7 +4,7 @@ export function groupByDate(data: dataModel[]): { key: string; data: dataModel[]
     const groupedData: { [key: string]: dataModel[] } = {};
   
     data.forEach((item) => {
-      const dateKey = item.timestamp.toDateString();
+      const dateKey = item.timestamp.split('T')[0];
   
       if (!groupedData[dateKey]) {
         groupedData[dateKey] = [];

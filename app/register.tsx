@@ -1,10 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 import { Text, Input, Button } from "@rneui/base";
 import { Link } from "expo-router";
+import client from "./api/client";
 
 export default function Register() {
+  const [error, setError] = useState("");
+
+  const [userInfo, setUserInfo] = useState({
+    deviceID: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const { deviceID, password, confirmPassword } = userInfo;
+
+  const handleOnChangeText = (value: string, fieldName: string) => {
+    setUserInfo({ ...userInfo, [fieldName]: value });
+  };
+
+  const isValidPassword = () => {
+    if (!password.trim() || password.length < 8) {
+      setError("Password must consists a minimum of 8 characters");
+      return false;
+    } else if (password !== confirmPassword) {
+      setError("Password do not match!");
+      return false;
+    }
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (isValidPassword()) {
+      const res = await client.post(
+        `/api/register?device_id=${userInfo.deviceID}`,
+        {
+          password: userInfo.password,
+        }
+      );
+      console.log(res);
+      console.log(userInfo);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.box}>
@@ -15,24 +54,38 @@ export default function Register() {
             keyboardType="default"
             inputStyle={styles.inputText}
             inputContainerStyle={styles.input}
+            value={deviceID}
+            onChangeText={(value) => handleOnChangeText(value, "deviceID")}
           />
           <Input
             placeholder="Password"
             secureTextEntry={true}
             inputStyle={styles.inputText}
+            value={password}
             inputContainerStyle={styles.input}
+            onChangeText={(value) => handleOnChangeText(value, "password")}
           />
           <Input
             placeholder="Re-Type Your Password"
             secureTextEntry={true}
             inputStyle={styles.inputText}
+            value={confirmPassword}
             inputContainerStyle={styles.input}
+            onChangeText={(value) =>
+              handleOnChangeText(value, "confirmPassword")
+            }
           />
           <Button
             title="Register"
             buttonStyle={styles.button}
             titleStyle={styles.buttonTitle}
+            onPress={handleRegister}
           />
+          {error ? (
+            <Text style={{ fontSize: 12, color: "red", textAlign: "center" }}>
+              {error}
+            </Text>
+          ) : null}
         </View>
         <View style={styles.footerBox}>
           <Text>Device already registered?</Text>

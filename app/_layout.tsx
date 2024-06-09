@@ -10,7 +10,7 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer drawerContent={DrawerItems} >
         <Drawer.Screen
-          name="dashboard" // This is the name of the page and must match the url from root
+          name="dashboard"
           options={{
             drawerLabel: "Dashboard",
             title: "Device ID: ",
@@ -23,7 +23,7 @@ export default function Layout() {
           }}
         />
         <Drawer.Screen
-          name="login" // This is the name of the page and must match the url from root
+          name="login"
           options={{
             drawerLabel: "Log In / Register",
             title: "Login",
@@ -38,7 +38,7 @@ export default function Layout() {
           }}
         />
         <Drawer.Screen
-          name="settings" // This is the name of the page and must match the url from root
+          name="settings"
           options={{
             drawerLabel: "Settings",
             title: "Settings",
@@ -51,7 +51,7 @@ export default function Layout() {
           }}
         />
         <Drawer.Screen
-          name="+not-found" // This is the name of the page and must match the url from root
+          name="+not-found"
           options={{
             title: "404 - Not Found",
             drawerItemStyle: { display: "none" },
@@ -77,6 +77,13 @@ export default function Layout() {
               backgroundColor: "#e7e7e7",
             },
             headerShown: false,
+          }}
+        />
+        <Drawer.Screen
+          name="api/client"
+          options={{
+            headerShown: false,
+            drawerItemStyle: { display: "none" }
           }}
         />
       </Drawer>
