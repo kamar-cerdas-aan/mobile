@@ -18,7 +18,6 @@ This repository contains the Kamar Cerdas AAN Smarthome System. The app is built
 - Dashboard View
 - Settings Page
 - Drawer Navigation
-- Custom Drawer Content
 
 ## Installation
 
@@ -26,21 +25,21 @@ To get started with the app, follow these steps:
 
 1. Clone the repository:
 
-    ```sh
-    git clone https://github.com/kamar-cerdas-aan/mobile.git
-    cd mobile
+    ```
+    git clone "https://github.com/kamar-cerdas-aan/mobile.git"
+    cd <path>
     ```
 
 2. Install dependencies:
 
-    ```sh
+    ```
     npm install
     ```
 
 3. Start the development server:
 
-    ```sh
-    expo start
+    ```
+    npx expo start
     ```
 
 ## Usage
@@ -54,9 +53,8 @@ To run the app on your device, you can use Expo Go:
 
 The app uses a drawer navigator for main navigation. Below is a brief overview of the navigation structure:
 
-- **Home**: Main entry point of the app.
-- **Dashboard**: View user's dashboard.
-- **Settings**: Configure app settings.
+- **Dashboard**: View system's log.
+- **Settings**: Configure profile settings.
 - **Login/Register**: Authentication screens.
 
 ### DrawerNavigator Component
