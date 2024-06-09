@@ -4,19 +4,26 @@ import { View } from "@/components/Themed";
 import { Text, Input, Button } from "@rneui/base";
 import { Link, useNavigation } from "expo-router";
 import client from "./api/client";
-import { RootDrawerParamList } from './navigation/types';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { RootDrawerParamList } from "./navigation/types";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { useAuth } from "./context/AuthProvider";
 
-type LoginScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'login'>;
+type LoginScreenNavigationProp = DrawerNavigationProp<
+  RootDrawerParamList,
+  "login"
+>;
 
 export default function Login() {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [error, setError] = useState("");
+  const { authState, setAuthState, setToken, setDeviceID } = useAuth();
 
-  const [userInfo, setUserInfo] = useState({
+  const emptyUserInfo = {
     deviceID: "",
     password: "",
-  });
+  }
+
+  const [userInfo, setUserInfo] = useState(emptyUserInfo);
 
   const { deviceID, password } = userInfo;
 
@@ -47,14 +54,26 @@ export default function Login() {
         });
         console.log(res);
 
+        const resData = res.data;
+
         if (res.status === 200) {
-          navigation.navigate('dashboard');
+          setAuthState(true);
+          setToken(resData.token);
+          setDeviceID(userInfo.deviceID);
+          setUserInfo(emptyUserInfo);
+          navigation.navigate("dashboard");
         }
       } catch (error) {
         console.error(error);
       }
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      authState ? navigation.navigate("dashboard") : null;
+    }, 500);
+  }, []);
 
   return (
     <View style={styles.container}>

@@ -1,18 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 import { Text, Input, Button } from "@rneui/base";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import client from "./api/client";
+import { RootDrawerParamList } from "./navigation/types";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { useAuth } from "./context/AuthProvider";
+
+type RegisterNavigationProp = DrawerNavigationProp<
+  RootDrawerParamList,
+  "register"
+>;
 
 export default function Register() {
+  const navigation = useNavigation<RegisterNavigationProp>();
+  const { authState, setAuthState, setToken, setDeviceID } = useAuth();
   const [error, setError] = useState("");
 
-  const [userInfo, setUserInfo] = useState({
+  const emptyUserInfo = {
     deviceID: "",
     password: "",
     confirmPassword: "",
-  });
+  };
+
+  const [userInfo, setUserInfo] = useState(emptyUserInfo);
 
   const { deviceID, password, confirmPassword } = userInfo;
 
@@ -33,16 +45,41 @@ export default function Register() {
 
   const handleRegister = async () => {
     if (isValidPassword()) {
-      const res = await client.post(
-        `/api/register?device_id=${userInfo.deviceID}`,
-        {
+      try {
+        const resReg = await client.post(
+          `/api/register?device_id=${userInfo.deviceID}`,
+          {
+            password: userInfo.password,
+          }
+        );
+        console.log(resReg);
+
+        const resLog = await client.post("/api/login", {
+          device_id: userInfo.deviceID,
           password: userInfo.password,
+        });
+        console.log(resLog);
+
+        const resData = resLog.data;
+
+        if (resLog.status === 200) {
+          setAuthState(true);
+          setToken(resData.token);
+          setDeviceID(userInfo.deviceID);
+          setUserInfo(emptyUserInfo);
+          navigation.navigate("dashboard");
         }
-      );
-      console.log(res);
-      console.log(userInfo);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      authState ? navigation.navigate("dashboard") : null;
+    }, 500);
+  }, []);
 
   return (
     <View style={styles.container}>

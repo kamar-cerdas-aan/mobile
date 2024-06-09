@@ -5,20 +5,28 @@ import Card from "@/components/Cards";
 import { dataModel } from "@/model/data";
 import { groupByDate } from "@/utils/group";
 import { Button, Divider } from "@rneui/base";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import client from "./api/client";
+import { useAuth } from "./context/AuthProvider";
+import { RootDrawerParamList } from "./navigation/types";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 
-export default function Monitor() {
+type DashboardNavigationProp = DrawerNavigationProp<
+  RootDrawerParamList,
+  "dashboard"
+>;
+
+export default function Dashboard() {
+  const { authState, token, device_id } = useAuth();
+
+  const navigation = useNavigation<DashboardNavigationProp>();
+
   const [data, setData] = useState<
     {
       key: string;
       data: dataModel[];
     }[]
   >();
-
-  let loggedIn = true;
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiIiwiZGV2aWNlX2lkIjoiYnVrYW5oYW5zMiIsImlhdCI6MTcxNzg5ODIzMn0.PmdFMEyKcM4DBSV2SZp1_XyhiNtCeRs-HTq8P4bL0UY";
 
   const fetchAPI = async () => {
     try {
@@ -32,6 +40,10 @@ export default function Monitor() {
       if (resData !== null) {
         try {
           setData(groupByDate(resData));
+          navigation.setOptions({
+            title: String(device_id),
+          });
+          console.log(data);
         } catch (error) {
           console.error(error);
         }
@@ -42,44 +54,46 @@ export default function Monitor() {
   };
 
   useEffect(() => {
-    fetchAPI();
-    const interval = setInterval(fetchAPI, 15000);
-    return () => clearInterval(interval);
+    if (authState) {
+      fetchAPI();
+      const interval = setInterval(fetchAPI, 15000);
+      return () => clearInterval(interval);
+    } else {
+      navigation.navigate("login");
+    }
   }, []);
 
   return (
-    <SafeAreaView style={loggedIn ? styles.container : styles.middle}>
-      {loggedIn ? (
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item }) => (
-            <View style={styles.groupContainer}>
-              <Text style={styles.groupTitle}>{item.key}</Text>
-              <Divider style={styles.divider} />
-              <View style={styles.cardContainer}>
-                <FlatList
-                  data={item.data}
-                  keyExtractor={(item) => item.timestamp.toString()}
-                  renderItem={({ item }) => <Card item={item} />}
-                />
-              </View>
+    <SafeAreaView style={styles.container}>
+      {data?.length === 0 ? (
+        <Text
+          style={{
+            textAlign: "center",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 20,
+            fontWeight: "400",
+          }}>
+          No Data Available
+        </Text>
+      ) : null}
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item }) => (
+          <View style={styles.groupContainer}>
+            <Text style={styles.groupTitle}>{item.key}</Text>
+            <Divider style={styles.divider} />
+            <View style={styles.cardContainer}>
+              <FlatList
+                data={item.data}
+                keyExtractor={(item) => item.timestamp.toString()}
+                renderItem={({ item }) => <Card item={item} />}
+              />
             </View>
-          )}
-        />
-      ) : (
-        <View style={styles.groupNotLogin}>
-          <Text style={styles.textReminder}>
-            Please Log In to Monitor Your Logs
-          </Text>
-
-          <Button buttonStyle={styles.button}>
-            <Link style={styles.buttonTitle} href="/login">
-              Login
-            </Link>
-          </Button>
-        </View>
-      )}
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 }
@@ -87,12 +101,6 @@ export default function Monitor() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-  },
-  middle: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#fff",
   },
   groupContainer: {
@@ -126,10 +134,5 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     textAlign: "center",
-  },
-  groupNotLogin: {
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
   },
 });

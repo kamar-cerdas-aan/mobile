@@ -1,10 +1,22 @@
 import { StyleSheet, Text, SafeAreaView, View, TextInput } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Button, Divider } from "@rneui/base";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
+import { RootDrawerParamList } from "./navigation/types";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 import client from "./api/client";
+import { useAuth } from "./context/AuthProvider";
+
+type SettingsNavigationProp = DrawerNavigationProp<
+  RootDrawerParamList,
+  "settings"
+>;
 
 export default function Settings() {
+  const { authState, setAuthState, token, setToken } = useAuth();
+
+  const navigation = useNavigation<SettingsNavigationProp>();
+
   const [error, setError] = useState("");
   const [userInfo, setUserInfo] = useState({
     name: "",
@@ -12,10 +24,6 @@ export default function Settings() {
     device_id: "",
     password: "",
   });
-
-  const loggedIn = true;
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiIiwiZGV2aWNlX2lkIjoiYnVrYW5oYW5zMiIsImlhdCI6MTcxNzkwNTY0MH0.BrAPfiKbnIe_FVCTIz_8jyoTtb43iwnIszp-re0NZkQ";
 
   const { name, location, device_id, password } = userInfo;
 
@@ -44,12 +52,11 @@ export default function Settings() {
         console.log(res);
 
         if (res.status === 200) {
-          window.location.reload()
+          handleOnChangeText("", "password");
         }
       } catch (error) {
         console.error(error);
       }
-
     } else {
       setError("Please Fill All Fields");
       setTimeout(() => {
@@ -85,74 +92,56 @@ export default function Settings() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {loggedIn ? (
-        <>
-          <View style={styles.div}>
-            <Text style={styles.heading}>Device Profile</Text>
-            <Divider style={styles.divider} />
-            <View style={styles.items}>
-              <Text style={styles.itemKey}>Name</Text>
-              <TextInput
-                style={styles.itemInput}
-                value={name}
-                onChangeText={(value) => handleOnChangeText(value, "name")}
-              />
-            </View>
-            <View style={styles.items}>
-              <Text style={styles.itemKey}>Location</Text>
-              <TextInput
-                style={styles.itemInput}
-                value={location}
-                onChangeText={(value) => handleOnChangeText(value, "location")}
-              />
-            </View>
-            <View
-              style={[
-                styles.items,
-                { marginTop: 12, borderWidth: 1, padding: 12, borderRadius: 8 },
-              ]}>
-              <TextInput
-                style={styles.password}
-                secureTextEntry={true}
-                placeholder="Password"
-                value={password}
-                onChangeText={(value) => handleOnChangeText(value, "password")}
-              />
-              <Button
-                buttonStyle={styles.button}
-                titleStyle={styles.buttonTitle}
-                onPress={handleProfileUpdate}
-                title={"Update Profile"}
-              />
-            </View>
-            {error ? (
-              <Text style={{ fontSize: 12, color: "red" }}>{error}</Text>
-            ) : null}
-          </View>
-          <View style={styles.div}>
-            <Text style={styles.heading}>System Configuration</Text>
-            <Divider style={styles.divider} />
-            <View style={styles.items}>
-              <Text style={styles.itemKey}>
-                Movement Detection Timeout (minutes)
-              </Text>
-              <Text style={styles.itemValue}>5 minutes</Text>
-            </View>
-          </View>
-        </>
-      ) : (
-        <View style={styles.groupNotLogin}>
-          <Text style={styles.textReminder}>
-            Please Log In to Configure System Settings
-          </Text>
-
-          <Button buttonStyle={styles.button}>
-            <Link style={styles.buttonTitle} href="/login">
-              Login
-            </Link>
-          </Button>
+      <View style={styles.div}>
+        <Text style={styles.heading}>Device Profile</Text>
+        <Divider style={styles.divider} />
+        <View style={styles.items}>
+          <Text style={styles.itemKey}>Name</Text>
+          <TextInput
+            style={styles.itemInput}
+            value={name}
+            onChangeText={(value) => handleOnChangeText(value, "name")}
+          />
         </View>
-      )}
+        <View style={styles.items}>
+          <Text style={styles.itemKey}>Location</Text>
+          <TextInput
+            style={styles.itemInput}
+            value={location}
+            onChangeText={(value) => handleOnChangeText(value, "location")}
+          />
+        </View>
+        <View
+          style={[
+            styles.items,
+            { marginTop: 12, borderWidth: 1, padding: 12, borderRadius: 8 },
+          ]}>
+          <TextInput
+            style={styles.password}
+            secureTextEntry={true}
+            placeholder="Password"
+            value={password}
+            onChangeText={(value) => handleOnChangeText(value, "password")}
+          />
+          <Button
+            buttonStyle={styles.button}
+            titleStyle={styles.buttonTitle}
+            onPress={handleProfileUpdate}
+            title={"Update Profile"}
+          />
+        </View>
+        {error ? (
+          <Text style={{ fontSize: 12, color: "red" }}>{error}</Text>
+        ) : null}
+      </View>
+      <View style={styles.div}>
+        <Text style={styles.heading}>System Configuration</Text>
+        <Divider style={styles.divider} />
+        <View style={styles.items}>
+          <Text style={styles.itemKey}>Movement Detection Timeout</Text>
+          <Text style={styles.itemValue}>5 minutes</Text>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -183,8 +172,11 @@ const styles = StyleSheet.create({
   itemInput: {
     fontSize: 18,
     color: "#7f7f7f",
+    height: "100%",
+    width: 200,
     textAlign: "right",
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#F0F0F0",
+    paddingRight: 10,
     borderRadius: 8,
   },
   password: {
@@ -192,12 +184,13 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#888888",
     fontStyle: "italic",
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#F0F0F0",
     height: 32,
-    width: "100%",
+    width: 220,
     marginRight: 16,
     textAlignVertical: "center",
-    paddingLeft: 4,
+    paddingLeft: 12,
+    borderRadius: 8,
   },
   button: {
     backgroundColor: "#888888",
@@ -207,17 +200,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
     color: "#ffffff",
-    width: "100%",
     height: "100%",
     textAlign: "center",
-  },
-  groupNotLogin: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-  },
-  textReminder: {
-    fontSize: 18,
   },
 });
