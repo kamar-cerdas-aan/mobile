@@ -1,4 +1,9 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+} from "react";
 
 const AuthContext = createContext<any>(undefined);
 
@@ -8,7 +13,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [device_id, setDeviceID] = useState<string>("dummy");
 
   return (
-    <AuthContext.Provider value={{ authState, setAuthState, token, setToken, device_id, setDeviceID }}>
+    <AuthContext.Provider
+      value={{
+        authState,
+        setAuthState,
+        token,
+        setToken,
+        device_id,
+        setDeviceID,
+      }}>
       {children}
     </AuthContext.Provider>
   );

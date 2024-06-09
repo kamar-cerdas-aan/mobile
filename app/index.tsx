@@ -2,15 +2,33 @@ import { StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
 import { Link, useRouter } from "expo-router";
 import { useAuth } from "./context/AuthProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function index() {
-  const { authState, setAuthState } = useAuth();
+  const { setToken, setDeviceID, setAuthState } = useAuth();
   const router = useRouter();
 
+  const fetchUser = async () => {
+    const t = await AsyncStorage.getItem("token");
+    const did = await AsyncStorage.getItem("device_id");
+
+    return { t, did };
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      authState ? router.push("./dashboard") : router.push("./register");
-    }, 5000);
+    fetchUser().then(({ t, did }) => {
+      if (t !== null && did !== null) {
+        setToken(t);
+        setDeviceID(did);
+        setAuthState(true);
+        router.push("./dashboard");
+      } else {
+        setToken("");
+        setDeviceID("");
+        setAuthState(false);
+        router.push("./register");
+      }
+    });
   }, []);
 
   return (

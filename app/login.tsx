@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 import { Text, Input, Button } from "@rneui/base";
-import { Link, useNavigation } from "expo-router";
+import { Link, useNavigation, usePathname } from "expo-router";
 import client from "./api/client";
 import { RootDrawerParamList } from "./navigation/types";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { useAuth } from "./context/AuthProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type LoginScreenNavigationProp = DrawerNavigationProp<
   RootDrawerParamList,
@@ -15,13 +16,14 @@ type LoginScreenNavigationProp = DrawerNavigationProp<
 
 export default function Login() {
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const pathname = usePathname();
   const [error, setError] = useState("");
   const { authState, setAuthState, setToken, setDeviceID } = useAuth();
 
   const emptyUserInfo = {
     deviceID: "",
     password: "",
-  }
+  };
 
   const [userInfo, setUserInfo] = useState(emptyUserInfo);
 
@@ -52,14 +54,16 @@ export default function Login() {
           device_id: userInfo.deviceID,
           password: userInfo.password,
         });
-        console.log(res);
 
         const resData = res.data;
+        console.log(resData.token);
 
         if (res.status === 200) {
           setAuthState(true);
           setToken(resData.token);
           setDeviceID(userInfo.deviceID);
+          await AsyncStorage.setItem("token", resData.token);
+          await AsyncStorage.setItem("device_id", userInfo.deviceID);
           setUserInfo(emptyUserInfo);
           navigation.navigate("dashboard");
         }
@@ -70,10 +74,10 @@ export default function Login() {
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    if (pathname === "/login") {
       authState ? navigation.navigate("dashboard") : null;
-    }, 500);
-  }, []);
+    }
+  }, [pathname]);
 
   return (
     <View style={styles.container}>

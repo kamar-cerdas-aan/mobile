@@ -19,8 +19,8 @@ export default function Card({ item }: { item: dataModel }) {
           <Text>{item.timestamp.toString().slice(11, 19)}</Text>
         </View>
         <View style={{ flex: 1, width: "100%" }}>
-        <Text style={{fontWeight: "500"}}>Lamp Action</Text>
-          <Text>{(item.light) ? `Lamp On` : `Lamp Off`}</Text>
+        <Text style={{fontWeight: "500"}}>Light Action</Text>
+          <Text>{(item.light) ? `Light On` : `Light Off`}</Text>
         </View>
       </View>
     </View>

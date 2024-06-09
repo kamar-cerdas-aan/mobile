@@ -4,8 +4,8 @@ import { FlatList } from "react-native-gesture-handler";
 import Card from "@/components/Cards";
 import { dataModel } from "@/model/data";
 import { groupByDate } from "@/utils/group";
-import { Button, Divider } from "@rneui/base";
-import { Link, useNavigation } from "expo-router";
+import { Divider } from "@rneui/base";
+import { useNavigation } from "expo-router";
 import client from "./api/client";
 import { useAuth } from "./context/AuthProvider";
 import { RootDrawerParamList } from "./navigation/types";
@@ -35,15 +35,14 @@ export default function Dashboard() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(res.data);
+
       const resData = res.data;
       if (resData !== null) {
         try {
           setData(groupByDate(resData));
           navigation.setOptions({
-            title: String(device_id),
+            title: "Device ID: " + String(device_id),
           });
-          console.log(data);
         } catch (error) {
           console.error(error);
         }
@@ -61,7 +60,7 @@ export default function Dashboard() {
     } else {
       navigation.navigate("login");
     }
-  }, []);
+  }, [authState]);
 
   return (
     <SafeAreaView style={styles.container}>

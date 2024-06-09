@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 import { Text, Input, Button } from "@rneui/base";
-import { Link, useNavigation } from "expo-router";
+import { Link, useNavigation, usePathname } from "expo-router";
 import client from "./api/client";
 import { RootDrawerParamList } from "./navigation/types";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
@@ -15,6 +15,7 @@ type RegisterNavigationProp = DrawerNavigationProp<
 
 export default function Register() {
   const navigation = useNavigation<RegisterNavigationProp>();
+  const pathname = usePathname();
   const { authState, setAuthState, setToken, setDeviceID } = useAuth();
   const [error, setError] = useState("");
 
@@ -52,15 +53,16 @@ export default function Register() {
             password: userInfo.password,
           }
         );
-        console.log(resReg);
+        console.log(resReg.data);
 
         const resLog = await client.post("/api/login", {
           device_id: userInfo.deviceID,
           password: userInfo.password,
         });
-        console.log(resLog);
 
         const resData = resLog.data;
+        console.log("BRUTAL PARAH");
+        console.log(resData.token);
 
         if (resLog.status === 200) {
           setAuthState(true);
@@ -76,10 +78,10 @@ export default function Register() {
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    if (pathname === "/register") {
       authState ? navigation.navigate("dashboard") : null;
-    }, 500);
-  }, []);
+    }
+  }, [pathname]);
 
   return (
     <View style={styles.container}>

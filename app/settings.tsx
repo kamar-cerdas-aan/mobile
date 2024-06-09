@@ -1,21 +1,11 @@
 import { StyleSheet, Text, SafeAreaView, View, TextInput } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Button, Divider } from "@rneui/base";
-import { Link, useNavigation } from "expo-router";
-import { RootDrawerParamList } from "./navigation/types";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
 import client from "./api/client";
 import { useAuth } from "./context/AuthProvider";
 
-type SettingsNavigationProp = DrawerNavigationProp<
-  RootDrawerParamList,
-  "settings"
->;
-
 export default function Settings() {
   const { authState, setAuthState, token, setToken } = useAuth();
-
-  const navigation = useNavigation<SettingsNavigationProp>();
 
   const [error, setError] = useState("");
   const [userInfo, setUserInfo] = useState({
@@ -33,7 +23,6 @@ export default function Settings() {
 
   const handleProfileUpdate = async () => {
     if (name.trim() && location.trim() && password.trim()) {
-      console.log(userInfo);
       try {
         console.log(name, location, password);
         const res = await client.post(
@@ -49,7 +38,6 @@ export default function Settings() {
             },
           }
         );
-        console.log(res);
 
         if (res.status === 200) {
           handleOnChangeText("", "password");
@@ -62,33 +50,33 @@ export default function Settings() {
       setTimeout(() => {
         setError("");
       }, 2500);
-      console.log(userInfo);
     }
   };
 
-  const fetchAPI = async () => {
-    try {
-      const res = await client.get("/api/profile", {
+  const fetchAPI = () => {
+    client
+      .get("/api/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      })
+      .then((res) => {
+        const resData = res.data;
+        setUserInfo({
+          name: resData.name,
+          location: resData.location,
+          device_id: resData.device_id,
+          password: "",
+        });
+      })
+      .catch((e) => {
+        console.log(e);
       });
-      console.log(res.data);
-      const resData = res.data;
-      setUserInfo({
-        name: resData.name,
-        location: resData.location,
-        device_id: resData.device_id,
-        password: "",
-      });
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   useEffect(() => {
     fetchAPI();
-  }, []);
+  }, [authState]);
 
   return (
     <SafeAreaView style={styles.container}>
