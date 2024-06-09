@@ -4,11 +4,23 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import DrawerItems from "@/components/DrawerItems";
-import { AuthProvider, useAuth } from "./context/AuthProvider";
+import { AuthProvider } from "./context/AuthProvider";
 
 const DrawerNavigator = () => {
   return (
-    <Drawer drawerContent={DrawerItems}>
+    <Drawer
+      drawerContent={DrawerItems}
+      screenOptions={({ navigation }) => ({
+        headerLeft: () => (
+          <Ionicons
+            name="menu"
+            size={24}
+            color="black"
+            style={{ marginLeft: 16 }}
+            onPress={() => navigation.openDrawer()}
+          />
+        ),
+      })}>
       <Drawer.Screen
         name="index"
         options={{
