@@ -39,7 +39,11 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "e52c0a9f-f96c-42cc-b019-44c3e09eda92"
       }
-    }
+    },
+    "owner": "ctrlsth"
   }
 }

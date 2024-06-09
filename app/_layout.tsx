@@ -10,17 +10,18 @@ const DrawerNavigator = () => {
   return (
     <Drawer
       drawerContent={DrawerItems}
-      screenOptions={({ navigation }) => ({
-        headerLeft: () => (
-          <Ionicons
-            name="menu"
-            size={24}
-            color="black"
-            style={{ marginLeft: 16 }}
-            onPress={() => navigation.openDrawer()}
-          />
-        ),
-      })}>
+      // screenOptions={({ navigation }) => ({
+      //   headerLeft: () => (
+      //     <Ionicons
+      //       name="menu"
+      //       size={24}
+      //       color="black"
+      //       style={{ marginLeft: 16 }}
+      //       onPress={() => navigation.openDrawer()}
+      //     />
+      //   ),
+      // })}
+    >
       <Drawer.Screen
         name="index"
         options={{
@@ -93,6 +94,27 @@ const DrawerNavigator = () => {
       />
       <Drawer.Screen
         name="api/client"
+        options={{
+          headerShown: false,
+          drawerItemStyle: { display: "none" },
+        }}
+      />
+      <Drawer.Screen
+        name="api/login"
+        options={{
+          headerShown: false,
+          drawerItemStyle: { display: "none" },
+        }}
+      />
+      <Drawer.Screen
+        name="navigation/types"
+        options={{
+          headerShown: false,
+          drawerItemStyle: { display: "none" },
+        }}
+      />
+      <Drawer.Screen
+        name="context/AuthProvider"
         options={{
           headerShown: false,
           drawerItemStyle: { display: "none" },
