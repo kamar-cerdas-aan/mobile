@@ -21,12 +21,16 @@ export default function index() {
         setToken(t);
         setDeviceID(did);
         setAuthState(true);
-        router.push("./dashboard");
+        setTimeout(() => {
+          router.push("./dashboard");
+        }, 4000);
       } else {
         setToken("");
         setDeviceID("");
         setAuthState(false);
-        router.push("./register");
+        setTimeout(() => {
+          router.push("./register");
+        }, 4000);
       }
     });
   }, []);
